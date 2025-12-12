@@ -85,6 +85,9 @@ npx prisma generate
 # Run migrations (for development)
 npx prisma migrate dev
 
+# if the login credentials aren't working for you please run the following:
+npx prisma db seed
+
 # Or if migrations are already applied and you just need to sync:
 npx prisma migrate deploy
 ```

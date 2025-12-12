@@ -186,7 +186,8 @@ Follow these steps in order:
     ```bash
     cd backend
     npx prisma generate
-    npx prisma migrate dev
+    npx prisma migrate dev ( optional )
+    npx prisma db seed
     ```
 
 3.  **Configure Environment Variables** (if needed)
