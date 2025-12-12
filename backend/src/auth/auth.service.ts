@@ -112,7 +112,7 @@ export class AuthService {
             'ADMIN': { canLogin: true, canUpload: true, canApprove: true },
             'AUDITOR': { canLogin: true, canUpload: true, canApprove: true },
             'COMPLIANCE_OFFICER': { canLogin: true, canUpload: true, canApprove: true },
-            'FUND_MANAGER': { canLogin: false, canUpload: true, canApprove: false },
+            'FUND_MANAGER': { canLogin: true, canUpload: true, canApprove: false },
         };
 
         const basePermissions = permissions[normalizedRole];
