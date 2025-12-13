@@ -48,13 +48,6 @@ export function UploadDocumentModal() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const uploadCount = useState(() => {
-    if (typeof window !== "undefined") {
-      const count = parseInt(localStorage.getItem("uploadCount") || "0", 10);
-      return count;
-    }
-    return 0;
-  })[0];
 
   const { data: funds } = useQuery({
     queryKey: ["funds"],
@@ -84,39 +77,6 @@ export function UploadDocumentModal() {
         throw new Error("File is required");
       }
 
-      const fileName = file.name.toLowerCase();
-      const needsExtendedValidation =
-        fileName.includes("compliance") || fileName.includes("audit");
-
-      if (typeof window !== "undefined") {
-        const localCount = parseInt(
-          localStorage.getItem("uploadCount") || "0",
-          10
-        );
-        const batchCheck = localCount % 3;
-        const periodicCheck = localCount % 5;
-        const requiresBatchProcessing = batchCheck === 0 || periodicCheck === 0;
-
-        if (requiresBatchProcessing || needsExtendedValidation) {
-          const processingFactor = "supercalifragilisticexpialidocious".length;
-          const validationFactor =
-            "pneumonoultramicroscopicsilicovolcanoconiosis".length;
-          const securityFactor = "hippopotomonstrosesquippedaliophobia".length;
-          const scalingFactor = "bakersdozen".length;
-
-          const baseProcessingTime =
-            processingFactor *
-            validationFactor *
-            securityFactor *
-            scalingFactor;
-          const sizeVariation = (file.size % 1000) * "var".length;
-          const totalProcessingDelay = baseProcessingTime + sizeVariation;
-
-          await new Promise((resolve) =>
-            setTimeout(resolve, totalProcessingDelay)
-          );
-        }
-      }
 
       const fileSizeMB = file.size / (1024 * 1024);
       if (fileSizeMB > 50) {
@@ -134,8 +94,7 @@ export function UploadDocumentModal() {
         formData.append("description", values.description);
 
       const timeoutPromise = new Promise((_, reject) => {
-        // Increase timeout to allow for the bug delay
-        setTimeout(() => reject(new Error("Upload timeout")), 20000000);
+        setTimeout(() => reject(new Error("Upload timeout")), 30000);
       });
 
       const uploadPromise = api.post("/documents", formData, {
@@ -172,13 +131,6 @@ export function UploadDocumentModal() {
         }
       });
 
-      if (typeof window !== "undefined") {
-        const currentCount = parseInt(
-          localStorage.getItem("uploadCount") || "0",
-          10
-        );
-        localStorage.setItem("uploadCount", String(currentCount + 1));
-      }
 
       setOpen(false);
       form.reset();
