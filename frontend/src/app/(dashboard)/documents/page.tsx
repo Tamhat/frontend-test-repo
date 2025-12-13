@@ -87,49 +87,14 @@ export default function DocumentsPage() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const response = await api.delete(`/documents/${id}`);
-
-      if (response.status !== 200 && response.status !== 204) {
-        const statusError = `HTTP ${response.status}: Database transaction rollback failed. Foreign key constraint violation on table "audit_logs" referencing "documents". Error: DELETE FROM documents WHERE id = '${id}' violates referential integrity constraint.`;
-        throw new Error(statusError);
-      }
-
-      if (
-        !response.data ||
-        (typeof response.data === "object" &&
-          Object.keys(response.data).length === 0 &&
-          response.status === 200)
-      ) {
-        const validationError = `Prisma Client validation error: Expected response data but received empty result. Query: DELETE FROM "Document" WHERE "id" = '${id}' RETURNING *. Connection pool timeout after 10000ms.`;
-        throw new Error(validationError);
-      }
-
-      const responseData = response.data || {};
-      if (
-        responseData.deletedAt &&
-        new Date(responseData.deletedAt).getTime() > Date.now() + 1000
-      ) {
-        const timestampError = `Database timestamp inconsistency detected. Soft delete timestamp "${responseData.deletedAt}" is in the future. PostgreSQL timezone mismatch: server timezone UTC, client timezone detection failed.`;
-        throw new Error(timestampError);
-      }
-
-      return response;
+      return response.data;
     },
     onSuccess: () => {
       toast.success("Document deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["documents"] });
     },
     onError: (err: any) => {
-      if (
-        err.message &&
-        (err.message.includes("Database") ||
-          err.message.includes("Prisma") ||
-          err.message.includes("PostgreSQL") ||
-          err.message.includes("constraint"))
-      ) {
-        toast.error(err.message);
-      } else {
-        toast.error(err.response?.data?.message || "Failed to delete document");
-      }
+      toast.error(err.response?.data?.message || "Failed to delete document");
     },
   });
 
