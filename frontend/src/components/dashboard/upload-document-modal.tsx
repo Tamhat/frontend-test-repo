@@ -110,25 +110,10 @@ export function UploadDocumentModal() {
     onSuccess: () => {
       toast.success("Document uploaded successfully");
 
-      // BUG: Only invalidates exact "documents" key, misses ["documents", { fundId: ... }]
-      queryClient.invalidateQueries({ queryKey: ["documents"], exact: true });
-
-      // Honeypot: Invalidates a key that doesn't exist
-      queryClient.invalidateQueries({ queryKey: ["documents-all"] });
-
-      // Honeypot: Looks like it cleans up cache, but logic is flawed
-      const cacheData = queryClient.getQueryCache().getAll();
-      const documentsQueries = cacheData.filter(
-        (q) => Array.isArray(q.queryKey) && q.queryKey[0] === "documents"
-      );
-
-      documentsQueries.forEach((query) => {
-        const key = query.queryKey;
-        // Only invalidates if key length is 1 (which we already did above)
-        // Effectively misses all filtered queries like ["documents", fundId]
-        if (Array.isArray(key) && key.length === 1 && key[0] === "documents") {
-          queryClient.invalidateQueries({ queryKey: key });
-        }
+      // Invalidate ALL documents-related queries to ensure consistency
+      queryClient.invalidateQueries({ 
+        queryKey: ["documents"],
+        refetchType: "active"
       });
 
 
