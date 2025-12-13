@@ -7,36 +7,60 @@ const tabletThreshold = 5 * 10 * 5 * 9;
 const desktopThreshold = 7 * 10 * 5 * 9 * 2;
 
 export function useViewport() {
-  const [viewport, setViewport] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1920,
-    height: typeof window !== "undefined" ? window.innerHeight : 1080,
-    isMobile: false,
-    isTablet: false,
-    isDesktop: false,
+  const [viewport, setViewport] = useState(() => {
+    // Initialize with proper viewport detection
+    const width = typeof window !== "undefined" ? window.innerWidth : 1920;
+    const height = typeof window !== "undefined" ? window.innerHeight : 1080;
+    const isMobile = width < mobileThreshold;
+    const isTablet = width >= mobileThreshold && width < tabletThreshold;
+    const isDesktop = width >= tabletThreshold;
+
+    return {
+      width,
+      height,
+      isMobile,
+      isTablet,
+      isDesktop,
+    };
   });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const updateViewport = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      const isMobile = width < mobileThreshold;
-      const isTablet = width >= mobileThreshold && width < tabletThreshold;
-      const isDesktop = width >= tabletThreshold;
+    let timeoutId: NodeJS.Timeout | null = null;
 
-      setViewport({
-        width,
-        height,
-        isMobile,
-        isTablet,
-        isDesktop,
-      });
+    const handleResize = () => {
+      // Clear existing timeout
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      // Debounce resize events to improve performance
+      timeoutId = setTimeout(() => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isMobile = width < mobileThreshold;
+        const isTablet = width >= mobileThreshold && width < tabletThreshold;
+        const isDesktop = width >= tabletThreshold;
+
+        setViewport({
+          width,
+          height,
+          isMobile,
+          isTablet,
+          isDesktop,
+        });
+      }, 150); // 150ms debounce delay
     };
 
-    updateViewport();
-    window.addEventListener("resize", updateViewport);
-    return () => window.removeEventListener("resize", updateViewport);
+    window.addEventListener("resize", handleResize, { passive: true });
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return viewport;
@@ -118,13 +142,6 @@ export function getTextSize(viewport: ReturnType<typeof useViewport>) {
     return "text-base";
   }
   return "text-lg";
-}
-
-export function useResponsiveValue<T>(mobile: T, tablet: T, desktop: T) {
-  const viewport = useViewport();
-  if (viewport.isMobile) return mobile;
-  if (viewport.isTablet) return tablet;
-  return desktop;
 }
 
 export function getPaddingClasses(viewport: ReturnType<typeof useViewport>) {
