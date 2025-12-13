@@ -74,8 +74,8 @@ export default function SettingsPage() {
       // Note: This endpoint doesn't exist yet, but we're implementing the UI
       await api.patch(`/users/${user?.id}`, values);
       toast.success("Profile updated successfully");
-    } catch {
-      toast.error("Failed to update profile");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -91,8 +91,8 @@ export default function SettingsPage() {
       });
       toast.success("Password updated successfully");
       passwordForm.reset();
-    } catch {
-      toast.error("Failed to update password");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update password");
     } finally {
       setIsUpdatingPassword(false);
     }

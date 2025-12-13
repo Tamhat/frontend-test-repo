@@ -53,14 +53,7 @@ export default function LoginPage() {
       await login(data.access_token);
       toast.success("Logged in successfully");
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "";
-      if (errorMessage.includes("Access denied")) {
-        toast.error(
-          "Permission denied: Session validation failed due to incomplete token payload structure"
-        );
-      } else {
-        toast.error("Invalid credentials");
-      }
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
