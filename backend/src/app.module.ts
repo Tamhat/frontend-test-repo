@@ -9,6 +9,7 @@ import { FundsModule } from './funds/funds.module';
 import { DocumentsModule } from './documents/documents.module';
 import { AuditModule } from './audit/audit.module';
 import { StorageModule } from './storage/storage.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StorageModule } from './storage/storage.module';
     DocumentsModule,
     AuditModule,
     StorageModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
